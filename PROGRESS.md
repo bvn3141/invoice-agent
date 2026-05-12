@@ -2,9 +2,28 @@
 
 ## Wo wir gerade stehen
 
-**Letztes Update:** 2026-05-12
-**Aktuelle Phase:** Phase 6 abgeschlossen — Portfolio-Integration fertig. Alle 6 Phasen durch. Bauseite ist fertig; die verbleibenden Aufgaben sind nur noch manuell durch den User durchzuführen (siehe "Offene Fragen / TODOs" unten).
-**Nächster konkreter Schritt:** **MANUELL DURCH DEN USER:** (1) GitHub-Repo anlegen, Code committen, push; (2) `githubUrl` in `lib/projects.ts` auf die neue Repo-URL anpassen; (3) Demo-Video nach `docs/video_script.md` aufnehmen, als `public/videos/invoice-agent-demo.mp4` ins Portfolio legen, dann `videoPath`-Kommentar in `lib/projects.ts` entkommentieren; (4) `npm run dev` im Portfolio starten und `/projects/invoice-agent` durchklicken.
+**Letztes Update:** 2026-05-12, Ende Session 1
+**Aktuelle Phase:** Alle 6 Phasen durch. Repo live auf GitHub. Portfolio-Page rendert sauber (Dev-Server-Test bestanden, alle Sektionen + Architektur-SVG verifiziert).
+
+**Was Session 1 erreicht hat:**
+- Vollständiger Agent-Code, getestet (8er-Run: 7 PROCESSED + 1 REVIEW)
+- Synthetischer Datengenerator mit Edge-Case-Injektion (30er-Lauf verifiziert)
+- Komplette Doku (README, case-study.md, video_script.md, architecture.svg, LICENSE, PROGRESS)
+- Repo live: https://github.com/bvn3141/invoice-agent (Description + 7 Topics gesetzt)
+- Portfolio-Integration: lib/projects.ts-Eintrag + InvoiceAgentContent-Komponente + Video-Sektion (rendert wenn `videoPath` aktiviert) + Architektur-SVG in public/images/
+- TypeScript clean, Dev-Server-Smoke-Test grün (Next.js 16.1.6 / Turbopack, Page 76 KB, alle Section-Header gefunden, SVG-Asset 200 OK)
+
+**Nächster konkreter Schritt (Session 2):**
+1. **Wahrscheinlichste User-Aufgabe:** Demo-Video aufnehmen (60–90 s, MP4) nach `docs/video_script.md`, ablegen als `portfolio/public/videos/invoice-agent-demo.mp4`, dann `videoPath`-Kommentar in `portfolio/lib/projects.ts:60` entkommentieren. Page nochmal mit `npm run dev` checken.
+2. **Optional vor dem Video:** voller 30er-Agent-Lauf (`python -m uv run python -m invoice_agent --fresh`, ~25 min) für echte Zahlen in der Case Study und um alle 4 Edge-Case-Typen (Duplikat + Math-Error + Unknown-Vendor + Scan) End-to-End zu bestätigen. Token-Budget einkalkulieren.
+3. **Optional Polish:** 5 Beispiel-PDFs aus einem frischen Lauf + sample_processed.xlsx in `examples/` committen, damit GitHub-Browser ohne Setup sehen können wie der Output aussieht.
+4. **Möglicher Pfad parallel:** nächstes Showcase-Projekt starten — User-Favorit #2 ist Excel-Konsolidierung (Idee 05 in `ideen/`). Würde derselbe Aufbau, gleiches Pattern, anderer Use Case.
+
+**Beim Wiedereinstieg in Session 2 zuerst diese Reihe abarbeiten:**
+1. Diese PROGRESS.md lesen (du tust das gerade).
+2. `git -C "C:\Users\bvenn\OneDrive\Desktop\Python Projekte\Showcases\Office_automation" log --oneline` zum Check.
+3. Memory ist automatisch geladen (siehe MEMORY.md im memory-Ordner). Dort liegen alle Entscheidungen + Constraints.
+4. User fragen: Was zuerst — Video, 30er-Lauf, Polish, oder nächster Use Case?
 
 ## Status pro Phase
 
@@ -54,8 +73,10 @@
 - [x] Vision via Built-in Claude-Code-`Read`-Tool, statt eigenem Wrapper
 
 **Manuell durch den User (Reihenfolge):**
-- [ ] GitHub-Repo anlegen (Vorschlag: `office-automation-invoice-agent` oder `invoice-agent`), `Office_automation`-Verzeichnis als Initial-Commit pushen.
-- [ ] `githubUrl` in `portfolio/lib/projects.ts` für den `invoice-agent`-Eintrag auf die echte Repo-URL setzen (aktuell Platzhalter `https://github.com/bvn3141`).
+- [x] GitHub-Repo angelegt: https://github.com/bvn3141/invoice-agent
+- [x] Initial-Commit gepusht (Commit `76b3d6f`, 23 Files, main-Branch) am 2026-05-12
+- [x] `githubUrl` in `portfolio/lib/projects.ts` auf die echte URL aktualisiert
+- [x] GitHub-Repo-Description gesetzt: "Agentic invoice processing on the Claude Agent SDK — PDF in, validated Excel + structured review out." Topics: `agent`, `agentic-ai`, `claude-agent-sdk`, `invoice-processing`, `mcp`, `office-automation`, `python`
 - [ ] Demo-Video nach `docs/video_script.md` aufnehmen (60–90s, MP4, ~720p).
 - [ ] Video als `portfolio/public/videos/invoice-agent-demo.mp4` ablegen.
 - [ ] Die `videoPath`-Zeile in `portfolio/lib/projects.ts` entkommentieren — Video-Sektion auf der Project-Page wird automatisch sichtbar.
@@ -85,17 +106,21 @@
 ## Wichtige Pfade & Befehle
 
 **Pfade:**
-- Projekt: `C:\Users\bvenn\OneDrive\Desktop\Python Projekte\Showcases\Office_automation`
-- Portfolio: `C:\Users\bvenn\OneDrive\Desktop\Python Projekte\Website Dev\portfolio`
+- Projekt (lokal): `C:\Users\bvenn\OneDrive\Desktop\Python Projekte\Showcases\Office_automation`
+- Projekt (Remote): https://github.com/bvn3141/invoice-agent
+- Portfolio (lokal): `C:\Users\bvenn\OneDrive\Desktop\Python Projekte\Website Dev\portfolio`
 - Ideen-Sammlung: `C:\Users\bvenn\OneDrive\Desktop\Python Projekte\ideen`
 - Plan: `C:\Users\bvenn\.claude\plans\encapsulated-whistling-willow.md`
 
 **Befehle:**
 - Setup neu (z.B. nach `git clone`): `python -m uv sync`
 - venv-Python direkt: `.venv/Scripts/python.exe` (Windows)
-- Demo-Lauf (geplant, ab Phase 4): `python -m uv run python -m data_generator.generate --n 30 && python -m uv run python -m invoice_agent`
-- Portfolio-Dev: `cd "C:\Users\bvenn\OneDrive\Desktop\Python Projekte\Website Dev\portfolio"` und dann `npm run dev`
-- Tests einzelner Module: `python -m uv run python -c "import invoice_agent; ..."`
+- Generator (frische 30 PDFs): `python -m uv run python -m data_generator.generate --n 30 --seed 42`
+- Agent (Mini-Test, 3 Rechnungen): `python -m uv run python -m invoice_agent --fresh --limit 3 --verbose`
+- Agent (kompletter Lauf): `python -m uv run python -m invoice_agent --fresh`
+- Portfolio-Dev starten: `cd "C:\Users\bvenn\OneDrive\Desktop\Python Projekte\Website Dev\portfolio" && npm run dev`
+- Portfolio-Page öffnen: http://localhost:3000/projects/invoice-agent
+- Dev-Server stoppen: PID auf Port 3000 finden (`netstat -ano | findstr 3000`) und `taskkill /F /PID <pid>`
 
 ## Wie diese Datei in der nächsten Session zu lesen ist
 
