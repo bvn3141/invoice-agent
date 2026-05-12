@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 720" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <marker id="arrow-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#00f0ff"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#a855f7"/>
+    </marker>
+  </defs>
+
+  <rect width="880" height="720" fill="#0f0f0f"/>
+
+  <!-- Title -->
+  <text x="40" y="40" font-size="11" fill="#475569" letter-spacing="3">INVOICE_AGENT / FLOW</text>
+  <line x1="40" y1="50" x2="840" y2="50" stroke="#1e1e1e" stroke-width="1"/>
+
+  <!-- Input -->
+  <g>
+    <rect x="340" y="78" width="200" height="56" rx="8" fill="#0a0a0a" stroke="#475569" stroke-width="1"/>
+    <text x="440" y="103" text-anchor="middle" font-size="12" fill="#64748b">demo_inputs/inbox/</text>
+    <text x="440" y="121" text-anchor="middle" font-size="11" fill="#475569">*.pdf  (clean + scan)</text>
+  </g>
+  <line x1="440" y1="134" x2="440" y2="170" stroke="#475569" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- Read (built-in) -->
+  <g>
+    <rect x="320" y="170" width="240" height="56" rx="8" fill="#0a0a0a" stroke="#00f0ff" stroke-width="1.5"/>
+    <text x="440" y="194" text-anchor="middle" font-size="13" fill="#e2e8f0">Read</text>
+    <text x="440" y="212" text-anchor="middle" font-size="10" fill="#64748b">built-in · text-layer OR vision</text>
+  </g>
+  <line x1="440" y1="226" x2="440" y2="260" stroke="#475569" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- Extract -->
+  <g>
+    <rect x="340" y="260" width="200" height="46" rx="8" fill="#0a0a0a" stroke="#475569" stroke-width="1"/>
+    <text x="440" y="280" text-anchor="middle" font-size="12" fill="#94a3b8">extract structured fields</text>
+    <text x="440" y="296" text-anchor="middle" font-size="10" fill="#475569">invoice_no · vendor · totals · ust_rate</text>
+  </g>
+
+  <!-- Branch downward to 3 validations -->
+  <line x1="440" y1="306" x2="440" y2="330" stroke="#475569" stroke-width="1"/>
+  <line x1="170" y1="330" x2="710" y2="330" stroke="#475569" stroke-width="1"/>
+  <line x1="170" y1="330" x2="170" y2="358" stroke="#475569" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+  <line x1="440" y1="330" x2="440" y2="358" stroke="#475569" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+  <line x1="710" y1="330" x2="710" y2="358" stroke="#475569" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+
+  <!-- Tool 1: lookup_vendor -->
+  <g>
+    <rect x="60" y="358" width="220" height="58" rx="8" fill="#0a0a0a" stroke="#00f0ff" stroke-width="1.5"/>
+    <text x="170" y="380" text-anchor="middle" font-size="12" fill="#00f0ff">mcp__invoice__lookup_vendor</text>
+    <text x="170" y="398" text-anchor="middle" font-size="10" fill="#64748b">fuzzy match vs. vendors.json</text>
+    <text x="170" y="411" text-anchor="middle" font-size="9" fill="#475569">→ FOUND or NOT FOUND</text>
+  </g>
+
+  <!-- Tool 2: verify_math -->
+  <g>
+    <rect x="330" y="358" width="220" height="58" rx="8" fill="#0a0a0a" stroke="#00f0ff" stroke-width="1.5"/>
+    <text x="440" y="380" text-anchor="middle" font-size="12" fill="#00f0ff">mcp__invoice__verify_math</text>
+    <text x="440" y="398" text-anchor="middle" font-size="10" fill="#64748b">netto + ust ≈ brutto (±0.02)</text>
+    <text x="440" y="411" text-anchor="middle" font-size="9" fill="#475569">→ OK or MATH ERROR</text>
+  </g>
+
+  <!-- Tool 3: check_duplicate -->
+  <g>
+    <rect x="600" y="358" width="220" height="58" rx="8" fill="#0a0a0a" stroke="#00f0ff" stroke-width="1.5"/>
+    <text x="710" y="380" text-anchor="middle" font-size="12" fill="#00f0ff">mcp__invoice__check_duplicate</text>
+    <text x="710" y="398" text-anchor="middle" font-size="10" fill="#64748b">scan rows in processed.xlsx</text>
+    <text x="710" y="411" text-anchor="middle" font-size="9" fill="#475569">→ OK or DUPLICATE</text>
+  </g>
+
+  <!-- Converge to decision -->
+  <line x1="170" y1="416" x2="170" y2="448" stroke="#475569" stroke-width="1"/>
+  <line x1="440" y1="416" x2="440" y2="448" stroke="#475569" stroke-width="1"/>
+  <line x1="710" y1="416" x2="710" y2="448" stroke="#475569" stroke-width="1"/>
+  <line x1="170" y1="448" x2="710" y2="448" stroke="#475569" stroke-width="1"/>
+  <line x1="440" y1="448" x2="440" y2="466" stroke="#475569" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- Decision diamond -->
+  <g>
+    <polygon points="440,468 540,508 440,548 340,508" fill="#0a0a0a" stroke="#a855f7" stroke-width="1.5"/>
+    <text x="440" y="506" text-anchor="middle" font-size="11" fill="#a855f7">decision</text>
+    <text x="440" y="520" text-anchor="middle" font-size="9" fill="#64748b">all three OK?</text>
+  </g>
+
+  <!-- Yes branch -->
+  <text x="563" y="500" font-size="10" fill="#a855f7">yes</text>
+  <line x1="540" y1="508" x2="635" y2="508" stroke="#a855f7" stroke-width="1.2"/>
+  <line x1="635" y1="508" x2="635" y2="580" stroke="#a855f7" stroke-width="1.2" marker-end="url(#arrow-purple)"/>
+
+  <!-- No branch -->
+  <text x="265" y="500" font-size="10" fill="#a855f7">no</text>
+  <line x1="340" y1="508" x2="245" y2="508" stroke="#a855f7" stroke-width="1.2"/>
+  <line x1="245" y1="508" x2="245" y2="580" stroke="#a855f7" stroke-width="1.2" marker-end="url(#arrow-purple)"/>
+
+  <!-- Categorize then Append -->
+  <g>
+    <rect x="525" y="580" width="220" height="42" rx="8" fill="#0a0a0a" stroke="#00f0ff" stroke-width="1.5"/>
+    <text x="635" y="606" text-anchor="middle" font-size="11" fill="#00f0ff">categorize_expense → append_to_excel</text>
+  </g>
+  <line x1="635" y1="622" x2="635" y2="650" stroke="#475569" stroke-width="1" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="525" y="650" width="220" height="42" rx="8" fill="#0a0a0a" stroke="#475569" stroke-width="1"/>
+    <text x="635" y="676" text-anchor="middle" font-size="11" fill="#94a3b8">output/processed.xlsx</text>
+  </g>
+
+  <!-- Flag for review -->
+  <g>
+    <rect x="135" y="580" width="220" height="42" rx="8" fill="#0a0a0a" stroke="#00f0ff" stroke-width="1.5"/>
+    <text x="245" y="606" text-anchor="middle" font-size="11" fill="#00f0ff">flag_for_review</text>
+  </g>
+  <line x1="245" y1="622" x2="245" y2="650" stroke="#475569" stroke-width="1" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="135" y="650" width="220" height="42" rx="8" fill="#0a0a0a" stroke="#475569" stroke-width="1"/>
+    <text x="245" y="671" text-anchor="middle" font-size="11" fill="#94a3b8">output/review/*.json</text>
+    <text x="245" y="685" text-anchor="middle" font-size="9" fill="#475569">structured reason + audit timestamp</text>
+  </g>
+
+  <!-- Legend -->
+  <g>
+    <rect x="40" y="78" width="14" height="14" fill="#0a0a0a" stroke="#00f0ff" stroke-width="1.5"/>
+    <text x="62" y="90" font-size="10" fill="#64748b">agent tool call</text>
+    <rect x="40" y="100" width="14" height="14" fill="#0a0a0a" stroke="#475569" stroke-width="1"/>
+    <text x="62" y="112" font-size="10" fill="#64748b">data / side effect</text>
+    <line x1="40" y1="127" x2="54" y2="127" stroke="#a855f7" stroke-width="1.5"/>
+    <text x="62" y="131" font-size="10" fill="#64748b">decision branch</text>
+  </g>
+</svg>

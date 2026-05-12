@@ -1,0 +1,167 @@
+[
+  {
+    "id": "VND-001",
+    "name": "KaffeeKönig Webshop GmbH",
+    "country": "DE",
+    "address": "Marktstraße 12, 80331 München",
+    "vat_id": "DE254187329",
+    "iban": "DE89 3704 0044 0532 0130 00",
+    "default_category": "Bewirtung",
+    "default_currency": "EUR",
+    "template": "webshop"
+  },
+  {
+    "id": "VND-002",
+    "name": "Pixelpunk Online AG",
+    "country": "DE",
+    "address": "Friedrichstraße 88, 10117 Berlin",
+    "vat_id": "DE318204995",
+    "iban": "DE27 1007 0024 0123 4567 80",
+    "default_category": "Software/Hardware",
+    "default_currency": "EUR",
+    "template": "webshop"
+  },
+  {
+    "id": "VND-003",
+    "name": "BuchBar Versand GmbH",
+    "country": "DE",
+    "address": "Lindenallee 7, 04109 Leipzig",
+    "vat_id": "DE441290876",
+    "iban": "DE60 8602 0086 0203 1234 12",
+    "default_category": "Fachliteratur",
+    "default_currency": "EUR",
+    "template": "webshop"
+  },
+  {
+    "id": "VND-004",
+    "name": "ToolStore24 GmbH",
+    "country": "DE",
+    "address": "Industriering 5, 70565 Stuttgart",
+    "vat_id": "DE128765432",
+    "iban": "DE71 6005 0101 0008 7654 32",
+    "default_category": "Werkzeug",
+    "default_currency": "EUR",
+    "template": "webshop"
+  },
+  {
+    "id": "VND-005",
+    "name": "NaturNah Shop GmbH",
+    "country": "DE",
+    "address": "Gartenweg 21, 22765 Hamburg",
+    "vat_id": "DE298776543",
+    "iban": "DE12 2005 0550 1265 4321 99",
+    "default_category": "Bewirtung",
+    "default_currency": "EUR",
+    "template": "webshop"
+  },
+  {
+    "id": "VND-006",
+    "name": "Schmidt Strategy Group GmbH",
+    "country": "DE",
+    "address": "Königsallee 60, 40212 Düsseldorf",
+    "vat_id": "DE301998877",
+    "iban": "DE43 3007 0010 0099 8877 66",
+    "default_category": "Beratung",
+    "default_currency": "EUR",
+    "template": "consulting"
+  },
+  {
+    "id": "VND-007",
+    "name": "Northwind Consulting LLC",
+    "country": "US",
+    "address": "350 Fifth Avenue, New York, NY 10118",
+    "vat_id": "EIN 27-1234567",
+    "iban": "US-ACH 021000021 | Acct 1122334455",
+    "default_category": "Beratung",
+    "default_currency": "USD",
+    "template": "consulting"
+  },
+  {
+    "id": "VND-008",
+    "name": "BlueBridge Advisors GmbH",
+    "country": "DE",
+    "address": "Neuer Wall 50, 20354 Hamburg",
+    "vat_id": "DE415556677",
+    "iban": "DE91 2007 0024 0455 5667 70",
+    "default_category": "Beratung",
+    "default_currency": "EUR",
+    "template": "consulting"
+  },
+  {
+    "id": "VND-009",
+    "name": "Apex Capital Partners LLC",
+    "country": "US",
+    "address": "1 Market St, Suite 400, San Francisco, CA 94105",
+    "vat_id": "EIN 81-9988776",
+    "iban": "US-ACH 121000248 | Acct 5566778899",
+    "default_category": "Beratung",
+    "default_currency": "USD",
+    "template": "consulting"
+  },
+  {
+    "id": "VND-010",
+    "name": "Brückner & Partner KG",
+    "country": "DE",
+    "address": "Maximilianstraße 12, 80539 München",
+    "vat_id": "DE205443322",
+    "iban": "DE55 7005 0000 0054 4332 21",
+    "default_category": "Beratung",
+    "default_currency": "EUR",
+    "template": "consulting"
+  },
+  {
+    "id": "VND-011",
+    "name": "Müller Bürobedarf GmbH",
+    "country": "DE",
+    "address": "Hauptstraße 42, 10115 Berlin",
+    "vat_id": "DE123456789",
+    "iban": "DE89 3704 0044 0532 0001 23",
+    "default_category": "Bürobedarf",
+    "default_currency": "EUR",
+    "template": "office_supplies"
+  },
+  {
+    "id": "VND-012",
+    "name": "PaperWorks AG",
+    "country": "DE",
+    "address": "Druckereistraße 14, 50667 Köln",
+    "vat_id": "DE254788123",
+    "iban": "DE32 3705 0198 0001 2345 67",
+    "default_category": "Bürobedarf",
+    "default_currency": "EUR",
+    "template": "office_supplies"
+  },
+  {
+    "id": "VND-013",
+    "name": "OfficeMax Deutschland GmbH",
+    "country": "DE",
+    "address": "Logistikpark 9, 90402 Nürnberg",
+    "vat_id": "DE189345621",
+    "iban": "DE48 7605 0101 0192 0456 78",
+    "default_category": "Bürobedarf",
+    "default_currency": "EUR",
+    "template": "office_supplies"
+  },
+  {
+    "id": "VND-014",
+    "name": "Schreibwaren Schultz e.K.",
+    "country": "DE",
+    "address": "Bahnhofstraße 5, 28195 Bremen",
+    "vat_id": "DE344112266",
+    "iban": "DE17 2905 0101 0008 1122 33",
+    "default_category": "Bürobedarf",
+    "default_currency": "EUR",
+    "template": "office_supplies"
+  },
+  {
+    "id": "VND-015",
+    "name": "Bürohof München GmbH",
+    "country": "DE",
+    "address": "Sendlinger Straße 33, 80331 München",
+    "vat_id": "DE207009988",
+    "iban": "DE25 7015 0000 0099 8800 11",
+    "default_category": "Bürobedarf",
+    "default_currency": "EUR",
+    "template": "office_supplies"
+  }
+]

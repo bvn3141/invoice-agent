@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.egg-info/
+build/
+dist/
+
+# Virtual envs
+.venv/
+venv/
+
+# Secrets
+.env
+
+# Project runtime artefacts (regenerated on demand)
+demo_inputs/
+output/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Claude Code session state
+.claude/
