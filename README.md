@@ -1,8 +1,10 @@
 # Invoice Agent
 
-An agentic invoice-processing showcase built on the [Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-python). Drop a stack of synthetic invoice PDFs into a folder; an agent reads them, extracts structured data, validates against vendor records, categorises expenses, and routes exceptions to a review folder — all in under two minutes per invoice.
+An agentic invoice-processing showcase built on the [Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-python). Drop a stack of synthetic invoice PDFs (or HTML order confirmations) into a folder; an agent reads them, extracts structured data, validates against vendor records, categorises expenses, and routes exceptions to a review folder — at around fifty seconds per invoice.
 
-**Why this exists.** Office workers spend five-plus hours a week on manual, repetitive tasks. Invoice processing — read PDF → enter data → categorise → file — is the canonical example. This project shows what an honest agentic workflow looks like for that problem: not a single LLM prompt, but a typed Pydantic tool loop with validation, deduplication, exception routing, and a sane review handoff for the edge cases.
+> **🎬 Demo video + full case study:** [benediktvennen.de/projects/invoice-agent](https://benediktvennen.de/projects/invoice-agent)
+
+**Why this exists.** Office workers spend around 4.5 hours a week on tasks they themselves believe could be automated ([UiPath 2021 Office Worker Survey](https://www.uipath.com/newsroom/new-study-finds-majority-of-global-office-workers-crushed-by-repetitive-tasks)). Invoice processing — read document → enter data → categorise → file — is the canonical example. This project shows what an honest agentic workflow looks like for that problem: not a single LLM prompt, but a typed Pydantic tool loop with validation, deduplication, exception routing, and a sane review handoff for the edge cases.
 
 **Cost note.** All model calls run through the Claude Pro plan via the Claude Agent SDK — no separate Anthropic API key, no per-token billing. The SDK reuses Claude Code's authentication.
 
@@ -16,8 +18,9 @@ Requires Python 3.11+, [Claude Code](https://docs.claude.com/en/docs/claude-code
 # 1. Install dependencies (creates a .venv via uv)
 python -m uv sync
 
-# 2. Generate a batch of synthetic invoice PDFs (~30 files into demo_inputs/inbox/)
-python -m uv run python -m data_generator.generate --n 30
+# 2. Generate a batch of synthetic invoices (10 files into demo_inputs/inbox/,
+#    same configuration as the demo video on the portfolio page)
+python -m uv run python -m data_generator.generate --n 10 --seed 42
 
 # 3. Run the agent — processes the inbox, writes output/processed.xlsx + output/review/
 python -m uv run python -m invoice_agent --fresh
@@ -25,6 +28,7 @@ python -m uv run python -m invoice_agent --fresh
 
 Add `--verbose` to the agent run to stream each tool call as it happens.
 Add `--limit N` to process only the first `N` invoices in the inbox (useful while iterating).
+Bump `--n` on the generator for a larger batch (default is 30; the showcase uses 10 because every individual run is observable end-to-end in roughly eight minutes).
 
 ## What the agent does
 
@@ -75,7 +79,6 @@ invoice-agent/
 ├── docs/
 │   ├── architecture.svg
 │   └── video_script.md
-├── examples/           # checked-in sample PDFs + outputs for browsing on GitHub
 ├── PROGRESS.md         # session-to-session progress log
 ├── case-study.md       # long-form write-up (mirrored on portfolio page)
 └── pyproject.toml
@@ -83,15 +86,15 @@ invoice-agent/
 
 ## The injected edge cases
 
-The generator does not just produce clean invoices. It deliberately injects the cases that hurt accounts payable in real operations, so the agent's value is observable:
+The generator does not just produce clean invoices. It deliberately injects the cases that hurt accounts payable in real operations, so the agent's value is observable. Counts below are for the showcase batch (`--n 10 --seed 42`); the generator scales these up roughly proportionally for larger `--n`.
 
-| Edge case | Count in default 30-batch | What should happen |
+| Edge case | Count (10-batch) | What should happen |
 |---|---|---|
-| Duplicate (same invoice no + vendor) | 2 (one pair) | First one processed, second flagged for review |
-| Math error (netto + tax ≠ brutto) | 2 | Flagged with math_error reason |
-| Unknown vendor (not in master records) | 2 | Flagged with unknown_vendor reason |
-| Currency variance (CHF, USD when unusual) | 1–2 | Captured in the currency field, routed by judgement |
-| Scan-look (image-only, no text layer) | ~8 (~25%) | Vision fallback kicks in; agent reads the image |
+| Duplicate (same invoice no + vendor) | 2 (one pair) | First processed, second flagged with `duplicate` reason |
+| Math error (netto + tax ≠ brutto) | 1 | Flagged with `math_error` reason |
+| Unknown vendor (not in master records) | 1 | Flagged with `unknown_vendor` reason — short-circuits before currency would be checked, so an incidentally-CHF invoice is not flagged separately on currency |
+| Scan-look (image-only, no text layer) | 2 (~20%) | Vision fallback kicks in; agent reads the image |
+| HTML order confirmation (not a PDF) | 1 | Same workflow; the `Read` tool handles HTML transparently |
 
 Re-run the generator with `--no-edge-cases` if you want a clean batch.
 
@@ -113,4 +116,4 @@ MIT. See [LICENSE](LICENSE).
 
 ## Credits
 
-Built by Benedikt Vennen as part of an agentic-AI showcase series. The companion portfolio entry — with the demo video and the case-study text rendered — is at [vennen.dev](https://vennen.dev) (project: *invoice-agent*).
+Built by Benedikt Vennen as part of an agentic-AI showcase series. The companion portfolio entry — with the embedded demo video and the case study rendered inline — is at [benediktvennen.de/projects/invoice-agent](https://benediktvennen.de/projects/invoice-agent).

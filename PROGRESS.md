@@ -2,8 +2,29 @@
 
 ## Wo wir gerade stehen
 
-**Letztes Update:** 2026-05-12, Ende Session 1
-**Aktuelle Phase:** Alle 6 Phasen durch. Repo live auf GitHub. Portfolio-Page rendert sauber (Dev-Server-Test bestanden, alle Sektionen + Architektur-SVG verifiziert).
+**Letztes Update:** 2026-05-14, Ende Session 2
+**Aktuelle Phase:** **Showcase ist live.** Video aufgenommen, geschnitten, ins Portfolio integriert, deployt — https://benediktvennen.de/projects/invoice-agent. Damit ist der Mindest-Scope abgeschlossen. Optional offen: Sample-Files in `examples/` committen, voller 30er-Validierungslauf, Video-Re-Export auf <10 MB.
+
+**Session 2 — Video & Deployment (2026-05-14):**
+- **Video aufgenommen** mit OBS, ~90 s, 1080p, drei Akte nach `docs/video_script.md`. Speed-Ramp im Mittelteil (1× → 3-4× → 1× am Run-Summary). Kein Voice-over.
+- **Editiert in CapCut Desktop:** 8 Text-Overlays (2.5–3 s Standzeit), Speed-Ramps für die Calculation-Phase, finaler MP4-Export H.264.
+- **Final-File:** 58 MB (höher als der ursprüngliche ~5-MB-Budget aus dem Drehbuch — bewusst nicht re-exportiert weil der Time-Effort > Nutzen war). GitHub warnt bei Push (>50 MB), pusht aber sauber. Re-Export auf 5–10 MB bleibt optionaler Polish-Schritt.
+- **Portfolio-Integration:** Video nach `portfolio/public/videos/invoice-agent-demo.mp4` kopiert, `videoPath` in `lib/projects.ts` aktiviert.
+- **Video-Position umgezogen:** statt am Ende nach dem Case Study sitzt das Video jetzt **inline direkt nach dem Architektur-Diagramm**, vor "EDGE CASES BUILT IN". Reader-Flow: Was-ist-agentic? → Architektur-SVG → Agent läuft live → Edge Cases → Results. Standalone-Demo-Section in `app/projects/[slug]/page.tsx` per Slug-Guard für invoice-agent ausgeschaltet (bleibt für künftige Video-Projekte verfügbar).
+- **Case-Study-Text auf 10er-Lauf synchronisiert** (war noch Session-1-Plan mit 30 Files): "thirty clean invoices" → "ten", Edge-Case-Counts korrigiert (1 Dup-Pair, 1 Math-Error, 1 Unknown Vendor; CHF ist Eigenschaft der unknown-Vendor-Rechnung, nicht eigener Flag — der Agent short-circuited bei `unknown_vendor` bevor Currency überhaupt geprüft wird), Run-Numbers (7 PROCESSED + 3 REVIEW), echtes Review-Quote aus `invoice_009__review.json` (Pixelpunk Online AG / INV-2026-DUP-5557 — vorher war ein erfundenes Schmidt-Strategy-Quote aus Session 1 drin), HTML-Format als zweiter Eingangskanal eingeführt, `vision_fallback_share` 25% → 20% (2/10 statt 8/30).
+- **UiPath-Quelle verifiziert:** "4.5 Stunden/Woche" stimmt (Newsroom-Post bestätigt). Aber "Invoice handling was at the top of the list" stimmt **nicht** — die Top-3 der Survey ist Email (60%), Data Input (59%), Meeting Scheduling (57%). Invoice ist nicht explizit genannt. Reframed auf "manual data entry, second on the list" — sachlich gedeckt.
+- **Commit + Push:** `bvn3141/portfolio` `master` Commit `85a8357`. GitHub-Warnung wegen Filesize, kein Block.
+- **Deployment auf Hetzner** (CPX22, 46.225.233.130) per SSH ausgeführt: `git pull && npm run build && pm2 restart portfolio`. Build sauber (10/10 Static Pages, Compile in 5.4s), PID 1585677 online. Live-Check: 200 OK auf Page + Video, `Accept-Ranges: bytes` für Streaming.
+
+**Session 2 erledigt zuvor (2026-05-13):**
+- **Generator-Anpassungen (`data_generator/generate.py`):** `_make_plan` skaliert Edge-Cases mit N (Schwelle nun n>=4 statt fix n>=8), Duplikat-Paar erzwingt Abstand >=3 Slots, CHF-Helvetia wird bei Unknown-Vendor bevorzugt zuerst gewählt. Scan wird auf einen Math-Error-Slot gestapelt (zeigt: Vision-Pfad + Mathe-Check arbeiten zusammen). NEU: ein webshop-Slot pro Lauf wird als HTML-Bestellbestätigung gerendert statt PDF.
+- **PDF-Templates visuell stark differenziert (`templates.py`):** Webshop bekommt cyan Akzentleiste oben + Logo-Kreis + cyan Tabellen-Header (E-Commerce-Look). Consulting bekommt navy vertikale Akzentleiste links + Times-Serif-Vendor-Name + goldene Akzentlinien (Premium-Look). Office Supplies bekommt schwarzen Courier-Header + gestrichelte Eingangsstempel-Box + Zebra-Tabelle (klassischer B2B-Buchhalter-Look). Drei Templates im Thumbnail sofort unterscheidbar.
+- **HTML-Bestellbestätigung als zweites Format:** `render_html_order()` in `templates.py` schreibt eine standalone HTML-Datei im Webshop-Mail-Stil (cyan Header, Logo-Bubble, Items-Tabelle, Footer mit IBAN). Agent (`agent.py`) liest jetzt `*.pdf` + `*.html` aus der Inbox. Prompt (`prompts.py`) erweitert: HTML ist gleichwertig zu PDF, Workflow ist identisch.
+- **`docs/video_script.md` komplett neu als 10er-3-Akt-Variante** geschrieben (Akt 1 0:00–0:22 Eröffnung mit 4 Klicks für Visual-Diversity, Akt 2 0:22–0:58 Agent arbeitet, Akt 3 0:58–1:25 Ergebnis, Outro 1:25–1:30).
+- **Mini-Trockenlauf** mit `--limit 3` (alte Templates): SDK grün, 3 Rechnungen in 80s. Math-Error sauber gefangen mit Begründung "netto+ust=46.21 ≠ brutto 37.31".
+- **Validation-Lauf** nach Template + HTML-Änderungen mit `--limit 4`: 4 Rechnungen in 117s, alle 4 sauber. HTML (`invoice_003.html` KaffeeKönig) wurde mit 7 tool calls verarbeitet — gleicher Workflow wie PDF, kein Sonderfall.
+- **Plausibilitäts-Fix Preise/Mengen:** Catalog-Tupel um `max_qty` pro Item erweitert; office_supplies-Builder nutzt jetzt das per-Item statt globaler 1-12 Range (kein 10er-Pack-Stapel-Effekt mehr — Helvetia hat jetzt 3 Briefumschlag-Packs statt 10). Pack-Beschreibungen klarer ("Pack à 500 Blatt", "100er-Pack" statt "100 Stk"), damit Recruiter nicht 17.97 CHF mit 1 Briefumschlag fehlinterpretieren kann.
+- **10er-Generator-Probelauf** (seed=42) → 9 PDFs + 1 HTML, 2 Scans, 4 Edge-Cases. Demo-Verteilung: invoice_001 (Scan+Math), invoice_002+invoice_009 (Dup-Paar Pixelpunk), invoice_003 (HTML KaffeeKönig), invoice_007 (Scan+Helvetia CHF+Unknown). Alle Preise/Mengen plausibel: Helvetia 315 CHF (4 Office-Supplies-Items), Schmidt Strategy 4587 EUR (Workshop-Tage), Bürohof 166 EUR (KMU-Bestellpaket).
 
 **Was Session 1 erreicht hat:**
 - Vollständiger Agent-Code, getestet (8er-Run: 7 PROCESSED + 1 REVIEW)
@@ -13,11 +34,25 @@
 - Portfolio-Integration: lib/projects.ts-Eintrag + InvoiceAgentContent-Komponente + Video-Sektion (rendert wenn `videoPath` aktiviert) + Architektur-SVG in public/images/
 - TypeScript clean, Dev-Server-Smoke-Test grün (Next.js 16.1.6 / Turbopack, Page 76 KB, alle Section-Header gefunden, SVG-Asset 200 OK)
 
-**Nächster konkreter Schritt (Session 2):**
-1. **Wahrscheinlichste User-Aufgabe:** Demo-Video aufnehmen (60–90 s, MP4) nach `docs/video_script.md`, ablegen als `portfolio/public/videos/invoice-agent-demo.mp4`, dann `videoPath`-Kommentar in `portfolio/lib/projects.ts:60` entkommentieren. Page nochmal mit `npm run dev` checken.
-2. **Optional vor dem Video:** voller 30er-Agent-Lauf (`python -m uv run python -m invoice_agent --fresh`, ~25 min) für echte Zahlen in der Case Study und um alle 4 Edge-Case-Typen (Duplikat + Math-Error + Unknown-Vendor + Scan) End-to-End zu bestätigen. Token-Budget einkalkulieren.
-3. **Optional Polish:** 5 Beispiel-PDFs aus einem frischen Lauf + sample_processed.xlsx in `examples/` committen, damit GitHub-Browser ohne Setup sehen können wie der Output aussieht.
-4. **Möglicher Pfad parallel:** nächstes Showcase-Projekt starten — User-Favorit #2 ist Excel-Konsolidierung (Idee 05 in `ideen/`). Würde derselbe Aufbau, gleiches Pattern, anderer Use Case.
+**Was Session 1 erreicht hat:**
+- Vollständiger Agent-Code, getestet (8er-Run: 7 PROCESSED + 1 REVIEW)
+- Synthetischer Datengenerator mit Edge-Case-Injektion (30er-Lauf verifiziert)
+- Komplette Doku (README, case-study.md, video_script.md, architecture.svg, LICENSE, PROGRESS)
+- Repo live: https://github.com/bvn3141/invoice-agent (Description + 7 Topics gesetzt)
+- Portfolio-Integration: lib/projects.ts-Eintrag + InvoiceAgentContent-Komponente + Video-Sektion (rendert wenn `videoPath` aktiviert) + Architektur-SVG in public/images/
+- TypeScript clean, Dev-Server-Smoke-Test grün (Next.js 16.1.6 / Turbopack, Page 76 KB, alle Section-Header gefunden, SVG-Asset 200 OK)
+
+**Nächster konkreter Schritt (Session 3):**
+1. **Optional Polish A — Sample-Files committen:** 5 Beispiel-PDFs aus dem 10er-Lauf + `sample_processed.xlsx` + 1–2 review-JSONs nach `examples/` ins invoice-agent-Repo. Recruiter sehen Output ohne lokales Setup. ~10 min.
+2. **Optional Polish B — Video re-exportieren** auf 5–10 MB (CapCut: Bitrate auf 4–6 Mbps manuell setzen). Verbessert Page-Load-Speed der Project-Page deutlich. ~10 min plus erneuter Hetzner-Deploy.
+3. **Optional Polish C — Voller 30er-Validierungslauf** zur Auffrischung der Case-Study-Zahlen mit echten Run-Daten statt Schätzungen. ~25 min Token-/Zeit-Investment.
+4. **Hauptpfad: nächstes Showcase-Projekt starten** — User-Favorit #2 ist Excel-Konsolidierung (Idee 05 in `~/Python Projekte/ideen/`). Gleiches Pattern: lokaler Use Case, OSS, Synthese-Daten, Portfolio-Integration mit Demo-Video.
+
+**Idealisierte Edge-Case-Verteilung im 10er-Lauf (seed=42, schon generiert):**
+- `invoice_001.pdf` — Scan + Math-Error (Webshop DE BuchBar Versand). Zwei Probleme in einer Rechnung: zeigt Vision-Pfad UND Mathe-Check.
+- `invoice_002.pdf` + `invoice_009.pdf` — Duplikat-Paar (gleiche Vendor Pixelpunk Online + INV-2026-DUP-5557). 7 Slots auseinander, sauber inszenierbar.
+- `invoice_007.pdf` — Scan + Helvetia CHF (Unknown-Vendor + fremde Währung). Wieder zwei Probleme in einer Rechnung.
+- Rest (000, 003–006, 008): sauber, sollten "PROCESSED" durchlaufen.
 
 **Beim Wiedereinstieg in Session 2 zuerst diese Reihe abarbeiten:**
 1. Diese PROGRESS.md lesen (du tust das gerade).
@@ -33,9 +68,8 @@
 - [x] **Phase 4** — Agent-Kern (schemas, outputs, tools mit MCP-Server, prompts, agent.py mit Retry); 8er-Test-Batch grün
 - [x] **Phase 5** — Case Study, README, LICENSE, Video-Drehbuch, Architektur-SVG
 - [x] **Phase 6** — Portfolio-Integration (lib/projects.ts-Eintrag, InvoiceAgentContent in [slug]/page.tsx, Video-Sektion mit optionalem videoPath, SVG nach public/images/, TypeScript clean)
-- [ ] **Phase 4** — Agent-Kern (schemas, tools, agent.py, outputs)
-- [ ] **Phase 5** — Polish + Demo-Material (README, Case Study, Architektur-Diagramm, Video)
-- [ ] **Phase 6** — Portfolio-Integration (lib/projects.ts, Content-Komponente, Asset-Einbindung)
+- [x] **Phase 7** — Demo-Video aufgenommen, geschnitten, inline integriert
+- [x] **Phase 8** — Live-Deployment auf Hetzner (https://benediktvennen.de/projects/invoice-agent)
 
 ## Entscheidungen
 
@@ -77,11 +111,13 @@
 - [x] Initial-Commit gepusht (Commit `76b3d6f`, 23 Files, main-Branch) am 2026-05-12
 - [x] `githubUrl` in `portfolio/lib/projects.ts` auf die echte URL aktualisiert
 - [x] GitHub-Repo-Description gesetzt: "Agentic invoice processing on the Claude Agent SDK — PDF in, validated Excel + structured review out." Topics: `agent`, `agentic-ai`, `claude-agent-sdk`, `invoice-processing`, `mcp`, `office-automation`, `python`
-- [ ] Demo-Video nach `docs/video_script.md` aufnehmen (60–90s, MP4, ~720p).
-- [ ] Video als `portfolio/public/videos/invoice-agent-demo.mp4` ablegen.
-- [ ] Die `videoPath`-Zeile in `portfolio/lib/projects.ts` entkommentieren — Video-Sektion auf der Project-Page wird automatisch sichtbar.
-- [ ] Optional: 5 Beispiel-PDFs aus einem frischen Generator-Lauf nach `examples/sample_invoices/` committen, plus eine fertige `examples/sample_processed.xlsx` (für GitHub-Browser ohne Setup).
-- [ ] Voller 30-Rechnungs-Lauf zur Validierung aller Edge-Case-Typen + zum Liefern der echten Run-Zahlen für die Case Study (aktueller Zwischenstand basiert auf 8er-Run).
+- [x] Demo-Video aufgenommen (OBS, 1080p, 90s, 3-Akt-Variante mit 8 Overlays + Speed-Ramp)
+- [x] Video als `portfolio/public/videos/invoice-agent-demo.mp4` abgelegt (58 MB, GitHub-Warnung aber kein Block)
+- [x] `videoPath` in `portfolio/lib/projects.ts` aktiviert — Video rendert jetzt inline nach dem Architektur-Diagramm in der Case Study (nicht mehr als Standalone-Section am Ende)
+- [x] Hetzner-Deploy: `git pull && npm run build && pm2 restart portfolio` — live unter https://benediktvennen.de/projects/invoice-agent
+- [ ] Optional: 5 Beispiel-PDFs aus dem 10er-Lauf nach `examples/sample_invoices/` committen, plus `examples/sample_processed.xlsx` + 1–2 review-JSONs (für GitHub-Browser ohne Setup).
+- [ ] Optional: Video re-exportieren auf 5–10 MB (CapCut, Bitrate manuell auf 4–6 Mbps) für besseren Page-Load. Erfordert erneuten Hetzner-Deploy.
+- [ ] Optional: Voller 30-Rechnungs-Lauf zur Validierung aller Edge-Case-Typen + Liefern echter Run-Zahlen statt der aktuellen Schätzung "~50 s/Rechnung".
 
 **Bei Bedarf später (v2-Ideen):**
 - [ ] IMAP/Mail-Konten-Integration als Eingangskanal (Plan Anhang A).
