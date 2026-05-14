@@ -80,36 +80,37 @@ def make_faker(locale: Literal["de_DE", "en_US"]) -> Faker:
     return Faker(locale)
 
 
-# Product catalogues: per template, list of (description_local, min_price, max_price).
-# Currency is determined by the vendor, not the catalogue.
-PRODUCT_CATALOGS: dict[str, list[tuple[str, float, float]]] = {
+# Product catalogues: per template, list of (description_local, min_price, max_price, max_qty).
+# Currency is determined by the vendor, not the catalogue. max_qty caps the realistic
+# per-line quantity so an office isn't shown ordering twelve hole-punchers at once.
+PRODUCT_CATALOGS: dict[str, list[tuple[str, float, float, int]]] = {
     "webshop": [
-        ("Bluetooth-Kopfhörer Modell X", 39.90, 129.00),
-        ("USB-C Schnellladegerät 65W", 14.90, 29.90),
-        ("Notizbuch A5, dotted", 6.50, 14.90),
-        ("Premium Tee-Set, 4 Sorten", 24.90, 49.00),
-        ("Bio-Kaffeebohnen 1kg", 12.90, 28.50),
-        ("Tasse mit Logo, Keramik", 9.90, 18.00),
-        ("Powerbank 20.000 mAh", 29.90, 79.90),
-        ("Schreibtisch-Organizer Holz", 19.90, 44.90),
+        ("Bluetooth-Kopfhörer Modell X", 39.90, 129.00, 2),
+        ("USB-C Schnellladegerät 65W", 14.90, 29.90, 3),
+        ("Notizbuch A5, dotted", 6.50, 14.90, 4),
+        ("Premium Tee-Set, 4 Sorten", 24.90, 49.00, 2),
+        ("Bio-Kaffeebohnen 1kg", 12.90, 28.50, 4),
+        ("Tasse mit Logo, Keramik", 9.90, 18.00, 4),
+        ("Powerbank 20.000 mAh", 29.90, 79.90, 2),
+        ("Schreibtisch-Organizer Holz", 19.90, 44.90, 2),
     ],
     "consulting": [
-        ("Strategy consulting (hours)", 180.0, 350.0),
-        ("Workshop facilitation (day)", 1800.0, 3200.0),
-        ("Executive coaching session", 450.0, 950.0),
-        ("Market study & report", 2500.0, 7500.0),
-        ("Implementation oversight (day)", 1400.0, 2400.0),
+        ("Strategy consulting (hours)", 180.0, 350.0, 24),
+        ("Workshop facilitation (day)", 1800.0, 3200.0, 2),
+        ("Executive coaching session", 450.0, 950.0, 2),
+        ("Market study & report", 2500.0, 7500.0, 1),
+        ("Implementation oversight (day)", 1400.0, 2400.0, 3),
     ],
     "office_supplies": [
-        ("Druckerpapier A4, 500 Blatt", 4.90, 9.50),
-        ("Tintenpatronen-Set HP 304", 39.00, 89.00),
-        ("Locher Leitz NeXXt, Metall", 12.00, 22.00),
-        ("Kugelschreiber, 10er-Pack blau", 7.50, 14.00),
-        ("Aktenordner breit, schwarz", 3.50, 7.00),
-        ("Klebeband transparent, 6er-Pack", 5.90, 11.50),
-        ("Briefumschläge DIN lang, 100 Stk", 9.90, 18.00),
-        ("Textmarker 4er-Pack sortiert", 6.50, 12.90),
-        ("Schreibtischunterlage A2", 14.90, 28.00),
+        ("Druckerpapier A4 (Pack à 500 Blatt)", 4.90, 9.50, 5),
+        ("Tintenpatronen-Set HP 304", 39.00, 89.00, 2),
+        ("Locher Leitz NeXXt, Metall", 12.00, 22.00, 2),
+        ("Kugelschreiber blau (10er-Pack)", 7.50, 14.00, 3),
+        ("Aktenordner breit, schwarz", 3.50, 7.00, 10),
+        ("Klebeband transparent (6er-Pack)", 5.90, 11.50, 2),
+        ("Briefumschläge DIN lang (100er-Pack)", 9.90, 18.00, 3),
+        ("Textmarker 4er-Pack sortiert", 6.50, 12.90, 3),
+        ("Schreibtischunterlage A2", 14.90, 28.00, 2),
     ],
 }
 

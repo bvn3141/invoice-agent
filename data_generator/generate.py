@@ -59,15 +59,21 @@ def _make_plan(n: int, vendors: list[Vendor], inject_edge_cases: bool, rng: rand
         vendor = rng.choice(by_template[tpl])
         plan.append({"idx": i, "vendor": vendor, "edge_cases": [], "force_invoice_no": None})
 
-    if not inject_edge_cases or n < 8:
+    if not inject_edge_cases or n < 4:
         return plan
+
+    # Scale edge-case counts with N so a 10-invoice demo still hits all four types.
+    n_math = max(1, n // 10)
+    n_unknown = max(1, n // 10)
 
     candidate_idx = list(range(n))
     rng.shuffle(candidate_idx)
-    take = iter(candidate_idx)
 
-    # Duplicate: pick two slots, force them to share the same vendor + invoice number.
-    a, b = next(take), next(take)
+    # Duplicate pair: pick two slots at least 3 apart so the second hit isn't
+    # adjacent to the first — gives the demo viewer a moment to register the catch.
+    a = candidate_idx.pop(0)
+    b_pos = next((i for i, idx in enumerate(candidate_idx) if abs(idx - a) >= 3), 0)
+    b = candidate_idx.pop(b_pos)
     forced_no = f"INV-2026-DUP-{rng.randint(1000, 9999)}"
     plan[a]["force_invoice_no"] = forced_no
     plan[b]["force_invoice_no"] = forced_no
@@ -75,13 +81,24 @@ def _make_plan(n: int, vendors: list[Vendor], inject_edge_cases: bool, rng: rand
     plan[a]["edge_cases"].append("duplicate")
     plan[b]["edge_cases"].append("duplicate")
 
-    # Math error (two invoices)
-    for _ in range(2):
-        plan[next(take)]["edge_cases"].append("math_error")
+    # Math errors
+    for _ in range(n_math):
+        if not candidate_idx:
+            break
+        plan[candidate_idx.pop(0)]["edge_cases"].append("math_error")
 
-    # Unknown vendor (two invoices)
-    for unknown in rng.sample(UNKNOWN_VENDORS, k=2):
-        idx = next(take)
+    # Unknown vendors — prefer the CHF Helvetia vendor first so a single
+    # invoice covers both "unknown vendor" and "non-EUR currency" in the demo.
+    pool = list(UNKNOWN_VENDORS)
+    rng.shuffle(pool)
+    chf_vendor = next((v for v in UNKNOWN_VENDORS if v.default_currency == "CHF"), None)
+    if chf_vendor and chf_vendor in pool:
+        pool.remove(chf_vendor)
+        pool.insert(0, chf_vendor)
+    for unknown in pool[:n_unknown]:
+        if not candidate_idx:
+            break
+        idx = candidate_idx.pop(0)
         plan[idx]["vendor"] = unknown
         plan[idx]["edge_cases"].append("unknown_vendor")
 
@@ -104,7 +121,31 @@ def generate(
     plan = _make_plan(n, vendors, inject_edge_cases, rng)
 
     scan_count = int(round(n * scan_ratio))
-    scan_indices = set(rng.sample(range(n), k=min(scan_count, n)))
+    # Stack at least one scan onto a math-error invoice so the demo can show
+    # "vision pipeline + math check both fire on the same document".
+    math_error_idxs = [item["idx"] for item in plan if "math_error" in item["edge_cases"]]
+    scan_indices: set[int] = set()
+    if math_error_idxs and scan_count > 0:
+        scan_indices.add(math_error_idxs[0])
+    remaining_pool = [i for i in range(n) if i not in scan_indices]
+    needed = max(0, min(scan_count, n) - len(scan_indices))
+    if needed:
+        scan_indices.update(rng.sample(remaining_pool, k=min(needed, len(remaining_pool))))
+
+    # Pick one HTML-only slot: a clean webshop invoice (no scan, no edge case).
+    # Webshops realistically send HTML order confirmations instead of PDFs, so
+    # this exercises the agent's multi-format input handling.
+    html_idx: int | None = None
+    if inject_edge_cases and n >= 4:
+        for item in plan:
+            i = item["idx"]
+            if (
+                item["vendor"].template == "webshop"
+                and not item["edge_cases"]
+                and i not in scan_indices
+            ):
+                html_idx = i
+                break
 
     manifest: list[dict] = []
     for item in plan:
@@ -116,16 +157,23 @@ def generate(
         if "math_error" in item["edge_cases"]:
             _inject_math_error(data, rng)
 
-        pdf_path = output_dir / f"invoice_{idx:03d}.pdf"
         is_scan = idx in scan_indices
-        if is_scan:
-            distortions.render_scan(data, pdf_path, rng)
+        is_html = idx == html_idx
+
+        if is_html:
+            file_path = output_dir / f"invoice_{idx:03d}.html"
+            templates.render_html_order(data, file_path)
+        elif is_scan:
+            file_path = output_dir / f"invoice_{idx:03d}.pdf"
+            distortions.render_scan(data, file_path, rng)
         else:
-            templates.render_clean(data, pdf_path)
+            file_path = output_dir / f"invoice_{idx:03d}.pdf"
+            templates.render_clean(data, file_path)
 
         entry = _serialize_data(data)
-        entry["filename"] = pdf_path.name
+        entry["filename"] = file_path.name
         entry["scan"] = is_scan
+        entry["html"] = is_html
         entry["edge_cases"] = item["edge_cases"]
         manifest.append(entry)
 
@@ -134,6 +182,7 @@ def generate(
     return {
         "n": n,
         "scans": len(scan_indices),
+        "html": sum(1 for m in manifest if m.get("html")),
         "edge_cases": sum(1 for m in manifest if m["edge_cases"]),
         "manifest_path": str(manifest_path),
         "output_dir": str(output_dir),
@@ -167,6 +216,7 @@ def main() -> None:
 
     print(f"Generated {result['n']} invoices into {result['output_dir']}")
     print(f"  Scans: {result['scans']}")
+    print(f"  HTML order confirmations: {result['html']}")
     print(f"  Edge cases injected: {result['edge_cases']}")
     print(f"  Manifest: {result['manifest_path']}")
 
