@@ -32,5 +32,7 @@ Thumbs.db
 .claude/
 
 # Local-only artefacts not part of the showcase
-Video/                          # raw screen-capture source files
-build_linkedin_carousel.py      # marketing tooling (carousel PDF generator)
+# Video/ = raw screen-capture source files
+# build_linkedin_carousel.py = marketing tooling (carousel PDF generator)
+Video/
+build_linkedin_carousel.py
